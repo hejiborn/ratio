@@ -1,174 +1,170 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CalcApp">
-<meta name="mobile-web-app-capable" content="yes">
-
-<link rel="apple-touch-icon" href="https://via.placeholder.com/192"> 
- <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RATIO</title>
+    <title>RATIO Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
+            --tg-bg: var(--tg-theme-bg-color, #f4f4f9);
+            --tg-text: var(--tg-theme-text-color, #333);
+            --tg-hint: var(--tg-theme-hint-color, #999);
+            --tg-link: var(--tg-theme-link-color, #248bfe);
             --primary: #1a7f37;
-            --bg: #f4f4f9;
-            --card: #ffffff;
         }
-        body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #222; margin-top: 0; }
-        
+        body { 
+            font-family: -apple-system, system-ui, Roboto, sans-serif; 
+            background: var(--tg-bg); 
+            color: var(--tg-text);
+            margin: 0; padding: 15px; 
+            overscroll-behavior: none;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { 
+            background: var(--tg-theme-secondary-bg-color, #fff); 
+            padding: 20px; border-radius: 12px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
         .field-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9em; margin-bottom: 5px; color: #666; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        
+        label { display: block; font-size: 0.85em; margin-bottom: 5px; color: var(--tg-hint); }
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-size: 16px; 
+            background: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-text);
+        }
         .base-row { display: flex; gap: 10px; }
         .base-row select { flex: 2; }
-        .base-row input { flex: 1; background: #eee; }
+        .base-row input { flex: 1; background: var(--tg-theme-secondary-bg-color, #eee); }
 
-        .result-box { text-align: center; background: #eef9f1; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #cce7d5; }
-        .result-val { font-size: 28px; font-weight: bold; color: var(--primary); }
-        .formula-text { font-size: 11px; color: #888; margin-top: 5px; word-break: break-all; }
+        .result-box { 
+            text-align: center; background: rgba(26, 127, 55, 0.1); 
+            padding: 15px; border-radius: 10px; margin: 15px 0;
+            border: 1px solid var(--primary);
+        }
+        .result-val { font-size: 32px; font-weight: bold; color: var(--primary); }
+        .formula-text { font-size: 11px; color: var(--tg-hint); margin-top: 5px; }
 
-        button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; font-size: 14px; }
-        .btn-save { background: var(--primary); color: white; }
-        .btn-history { background: #666; color: white; }
-        .btn-editor { background: #007bff; color: white; }
-        button:active { opacity: 0.8; transform: scale(0.98); }
+        button { 
+            width: 100%; padding: 14px; border: none; border-radius: 10px; 
+            font-weight: bold; cursor: pointer; margin-bottom: 10px; 
+            font-size: 14px; transition: 0.2s;
+        }
+        .btn-main { background: var(--tg-theme-button-color, var(--primary)); color: var(--tg-theme-button-text-color, #fff); }
+        .btn-sec { background: #666; color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--tg-link); color: var(--tg-link); }
 
-        /* Модальные окна */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; overflow-y: auto; }
-        .modal-content { background: white; margin: 20px auto; padding: 20px; width: 90%; max-width: 450px; border-radius: 12px; }
-        .history-item { font-family: monospace; font-size: 12px; border-bottom: 1px solid #eee; padding: 8px 0; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        /* Модалки */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; }
+        .modal-content { background: var(--tg-bg); margin: 10% auto; padding: 20px; width: 85%; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
+        .history-item { font-family: monospace; font-size: 11px; border-bottom: 1px solid #ddd; padding: 8px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Соотношение</h2>
-
-    <div class="field-group">
-        <label>Значение A (1-100):</label>
-        <input type="number" id="valA" value="46" oninput="calculate()">
-    </div>
-
-    <div class="field-group">
-        <label>Значение B:</label>
-        <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()">
-    </div>
-
-    <div class="field-group">
-        <label>Значение D:</label>
-        <input type="number" id="valD" value="145" oninput="calculate()">
-    </div>
-
-    <div class="field-group">
-        <label>База (C):</label>
-        <div class="base-row">
-            <select id="baseSelect" onchange="onBaseChange()"></select>
-            <input type="text" id="valC" readonly>
+    <div class="card">
+        <div class="field-group">
+            <label>Значение A (1-100):</label>
+            <input type="number" id="valA" value="46" oninput="calculate()">
+        </div>
+        <div class="field-group">
+            <label>Значение B:</label>
+            <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()">
+        </div>
+        <div class="field-group">
+            <label>Значение D:</label>
+            <input type="number" id="valD" value="145" oninput="calculate()">
+        </div>
+        <div class="field-group">
+            <label>База (C):</label>
+            <div class="base-row">
+                <select id="baseSelect" onchange="onBaseChange()"></select>
+                <input type="text" id="valC" readonly>
+            </div>
         </div>
     </div>
 
-    <div class="field-group">
+    <div class="card">
         <label>Формула:</label>
         <input type="text" id="formula" value="(({A} * {B} + {C}) / {D}) * 100 - 100" oninput="calculate()">
+        <div class="result-box">
+            <div class="result-val" id="resDisplay">0.00 %</div>
+            <div class="formula-text" id="detailsDisplay">Ожидание данных...</div>
+        </div>
     </div>
 
-    <div class="result-box">
-        <div class="result-val" id="resDisplay">0.00 %</div>
-        <div class="formula-text" id="detailsDisplay">Введите данные...</div>
-    </div>
-
-    <button class="btn-save" onclick="saveToHistory()">✅ СОХРАНИТЬ В ИСТОРИЮ</button>
-    <button class="btn-editor" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
-    <button class="btn-history" onclick="openHistory()">📜 ПОКАЗАТЬ ИСТОРИЮ</button>
+    <button class="btn-main" onclick="saveToHistory()">✅ СОХРАНИТЬ В ИСТОРИЮ</button>
+    <button class="btn-outline" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
+    <button class="btn-sec" onclick="openHistory()">📜 ИСТОРИЯ РАСЧЕТОВ</button>
 </div>
 
-<div id="modalHistory" class="modal">
-    <div class="modal-content">
-        <h3>История расчетов</h3>
+<div id="modalHistory" class="modal" onclick="closeModals()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3>История</h3>
         <div id="historyList"></div>
-        <button onclick="clearHistory()" style="background:#dc3545; color:white; margin-top:15px;">Очистить</button>
-        <button onclick="closeModals()">Закрыть</button>
+        <button class="btn-sec" onclick="clearHistory()" style="background:#d33; margin-top:10px;">Очистить всё</button>
+        <button class="btn-outline" onclick="closeModals()">Закрыть</button>
     </div>
 </div>
 
-<div id="modalEditor" class="modal">
-    <div class="modal-content">
-        <h3>Редактор базы C</h3>
+<div id="modalEditor" class="modal" onclick="closeModals()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3>Редактор базы</h3>
         <table id="baseTable">
             <thead><tr><th>Имя</th><th>C</th><th></th></tr></thead>
             <tbody id="baseTableBody"></tbody>
         </table>
-        <button onclick="addNewBase()" style="background:#28a745; color:white;">+ Добавить</button>
-        <button onclick="closeModals()">Закрыть</button>
+        <button class="btn-main" onclick="addNewBase()" style="margin-top:10px;">+ Добавить</button>
+        <button class="btn-sec" onclick="resetBases()" style="background:#f39c12;">🔄 Сброс к заводским</button>
+        <button class="btn-outline" onclick="closeModals()">Закрыть</button>
     </div>
 </div>
 
 <script>
-// Значения, которые вы прописываете в коде
-const DEFAULT_BASES = {
-    "6 ЛЕРУА": 8.64,
-    "8 ЛЕРУА": 10.56,
-    "10 ЛЕРУА": 12.48,
-    "12 ЛЕРУА": 9.36,
-    "8 HARD": 5.76,
-    "10 HARD": 6.72,
-    "8 ГОСТ": 9.96,
-    "10 ГОСТ": 8.16,
-    "6 ST": 7.68,
-    "8 ST": 9.6,
-    "10 ST": 11.52,
-    "12 ST": 12.96,
-    "4 PRO": 3.84,
-    "6 PRO": 8.64,
-    "8 PRO": 10.56,
-    "10 PRO": 12.48,
-    "12 PRO": 12.96,
-    "14 PRO": 10.56,
-    "16 PRO": 10.8
-};
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-// Проверяем, есть ли в памяти пользовательские изменения
-let savedBases = localStorage.getItem('bases');
-let BASES;
-
-if (savedBases) {
-    BASES = JSON.parse(savedBases);
-    
-    // Добавляем новые элементы из DEFAULT_BASES, если их нет в памяти
-    Object.keys(DEFAULT_BASES).forEach(key => {
-        if (!(key in BASES)) {
-            BASES[key] = DEFAULT_BASES[key];
-        }
-    });
-} else {
-    // Если памяти нет — используем стандарт
-    BASES = { ...DEFAULT_BASES };
+    const DEFAULT_BASES = {
+        "6 ЛЕРУА": 8.64, "8 ЛЕРУА": 10.56, "10 ЛЕРУА": 12.48, "12 ЛЕРУА": 9.36,
+        "8 HARD": 5.76, "10 HARD": 6.72, "8 ГОСТ": 9.96, "10 ГОСТ": 8.16
     };
 
-    // Инициализация
+    let BASES;
+
     function init() {
+        loadBases();
         renderBaseSelect();
         calculate();
     }
 
+    function loadBases() {
+        let saved = localStorage.getItem('bases');
+        if (!saved) {
+            BASES = { ...DEFAULT_BASES };
+        } else {
+            BASES = JSON.parse(saved);
+            // Добавляем новые ключи из кода, если их нет в памяти
+            Object.keys(DEFAULT_BASES).forEach(key => {
+                if (!(key in BASES)) BASES[key] = DEFAULT_BASES[key];
+            });
+        }
+    }
+
     function renderBaseSelect() {
         const sel = document.getElementById('baseSelect');
-        const current = sel.value;
+        const lastVal = sel.value;
         sel.innerHTML = '';
         Object.keys(BASES).forEach(name => {
             const opt = document.createElement('option');
-            opt.value = name;
-            opt.textContent = name;
+            opt.value = name; opt.textContent = name;
             sel.appendChild(opt);
         });
-        if (current && BASES[current]) sel.value = current;
+        if (lastVal && BASES[lastVal]) sel.value = lastVal;
         onBaseChange();
     }
 
@@ -186,72 +182,63 @@ if (savedBases) {
             const d = document.getElementById('valD').value || "1";
             let f = document.getElementById('formula').value;
 
-            f = f.replace(/{A}/g, a).replace(/{B}/g, b).replace(/{C}/g, c).replace(/{D}/g, d);
-            
-            // Безопасное вычисление (только математика)
-            const cleanF = f.replace(/[^-()\d/*+.]/g, '');
-            const res = eval(cleanF);
+            let readyF = f.replace(/{A}/g, a).replace(/{B}/g, b).replace(/{C}/g, c).replace(/{D}/g, d);
+            const res = eval(readyF.replace(/[^-()\d/*+.]/g, ''));
             
             document.getElementById('resDisplay').textContent = res.toFixed(2) + " %";
-            document.getElementById('detailsDisplay').textContent = "Формула: " + f;
-            return { f, res: res.toFixed(2) };
+            document.getElementById('detailsDisplay').textContent = "Формула: " + readyF;
+            return { f: readyF, res: res.toFixed(2) };
         } catch (e) {
             document.getElementById('resDisplay').textContent = "---";
         }
     }
 
-    // ИСТОРИЯ
     function saveToHistory() {
         const data = calculate();
         if (!data) return;
         const history = JSON.parse(localStorage.getItem('calc_history')) || [];
-        const time = new Date().toLocaleString('ru-RU', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'});
+        const time = new Date().toLocaleString('ru-RU', {hour:'2-digit', minute:'2-digit'});
         history.unshift(`[${time}] ${data.f} = ${data.res}%`);
-        localStorage.setItem('calc_history', JSON.stringify(history.slice(0, 50)));
-        alert("Записано!");
+        localStorage.setItem('calc_history', JSON.stringify(history.slice(0, 30)));
+        
+        // Вибрация Telegram
+        tg.HapticFeedback.notificationOccurred('success');
+        alert("Сохранено!");
     }
 
-    function openHistory() {
-        const history = JSON.parse(localStorage.getItem('calc_history')) || [];
-        document.getElementById('historyList').innerHTML = history.map(i => `<div class="history-item">${i}</div>`).join('') || "Пусто";
-        document.getElementById('modalHistory').style.display = 'block';
-    }
-
-    function clearHistory() {
-        if(confirm("Очистить?")) {
-            localStorage.removeItem('calc_history');
-            openHistory();
+    function resetBases() {
+        if(confirm("Вернуть базу из файла?")) {
+            localStorage.removeItem('bases');
+            location.reload();
         }
     }
 
-    // РЕДАКТОР
+    // Вспомогательные функции (модалки, удаление)
+    function openHistory() {
+        const history = JSON.parse(localStorage.getItem('calc_history')) || [];
+        document.getElementById('historyList').innerHTML = history.map(i => `<div class="history-item">${i}</div>`).join('') || "История пуста";
+        document.getElementById('modalHistory').style.display = 'block';
+    }
+
     function openEditor() {
         const body = document.getElementById('baseTableBody');
         body.innerHTML = '';
         Object.entries(BASES).forEach(([name, val]) => {
-            body.innerHTML += `<tr>
-                <td>${name}</td>
-                <td>${val}</td>
-                <td><button onclick="deleteBase('${name}')" style="padding:4px; margin:0; background:#f44">X</button></td>
-            </tr>`;
+            const row = `<tr><td>${name}</td><td>${val}</td><td><button onclick="deleteBase('${name}')" style="background:#d33; padding:5px; margin:0; width:auto;">X</button></td></tr>`;
+            body.insertAdjacentHTML('beforeend', row);
         });
         document.getElementById('modalEditor').style.display = 'block';
     }
 
-    function addNewBase() {
-        const name = prompt("Название:");
-        const val = parseFloat(prompt("Значение C:"));
-        if (name && !isNaN(val)) {
-            BASES[name] = val;
-            saveBases();
-        }
+    function deleteBase(name) {
+        delete BASES[name];
+        saveBases();
     }
 
-    function deleteBase(name) {
-        if(confirm(`Удалить ${name}?`)) {
-            delete BASES[name];
-            saveBases();
-        }
+    function addNewBase() {
+        const n = prompt("Название:");
+        const v = parseFloat(prompt("Значение C:"));
+        if(n && !isNaN(v)) { BASES[n] = v; saveBases(); }
     }
 
     function saveBases() {
@@ -260,18 +247,16 @@ if (savedBases) {
         openEditor();
     }
 
-    function closeModals() {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    function clearHistory() { 
+        localStorage.removeItem('calc_history'); 
+        openHistory(); 
     }
 
-    window.onclick = function(event) {
-        if (event.target.className === 'modal') closeModals();
+    function closeModals() { 
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
     }
 
     init();
 </script>
-
 </body>
 </html>
-
-
