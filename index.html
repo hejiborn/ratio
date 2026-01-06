@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CalcApp">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="apple-touch-icon" href="https://via.placeholder.com/192"> 
+ <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CalcApp Web</title>
     <style>
@@ -105,9 +111,9 @@
 </div>
 
 <script>
-    let BASES = JSON.parse(localStorage.getItem('bases')) || {
-    
-	"6 ЛЕРУА": 8.64,
+// Значения, которые вы прописываете в коде
+const DEFAULT_BASES = {
+    "6 ЛЕРУА": 8.64,
     "8 ЛЕРУА": 10.56,
     "10 ЛЕРУА": 12.48,
     "12 ЛЕРУА": 9.36,
@@ -126,6 +132,24 @@
     "12 PRO": 12.96,
     "14 PRO": 10.56,
     "16 PRO": 10.8
+};
+
+// Проверяем, есть ли в памяти пользовательские изменения
+let savedBases = localStorage.getItem('bases');
+let BASES;
+
+if (savedBases) {
+    BASES = JSON.parse(savedBases);
+    
+    // Добавляем новые элементы из DEFAULT_BASES, если их нет в памяти
+    Object.keys(DEFAULT_BASES).forEach(key => {
+        if (!(key in BASES)) {
+            BASES[key] = DEFAULT_BASES[key];
+        }
+    });
+} else {
+    // Если памяти нет — используем стандарт
+    BASES = { ...DEFAULT_BASES };
     };
 
     // Инициализация
