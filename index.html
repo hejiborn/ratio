@@ -59,7 +59,6 @@
         /* Модалки */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; }
         .modal-content { background: var(--tg-bg); margin: 10% auto; padding: 20px; width: 85%; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
-        .history-item { font-family: monospace; font-size: 11px; border-bottom: 1px solid #ddd; padding: 8px 0; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
     </style>
@@ -98,18 +97,7 @@
         </div>
     </div>
 
-    <button class="btn-main" onclick="saveToHistory()">✅ СОХРАНИТЬ В ИСТОРИЮ</button>
-    <button class="btn-outline" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
-    <button class="btn-sec" onclick="openHistory()">📜 ИСТОРИЯ РАСЧЕТОВ</button>
-</div>
-
-<div id="modalHistory" class="modal" onclick="closeModals()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3>История</h3>
-        <div id="historyList"></div>
-        <button class="btn-sec" onclick="clearHistory()" style="background:#d33; margin-top:10px;">Очистить всё</button>
-        <button class="btn-outline" onclick="closeModals()">Закрыть</button>
-    </div>
+    <button class="btn-main" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
 </div>
 
 <div id="modalEditor" class="modal" onclick="closeModals()">
@@ -165,7 +153,6 @@
             BASES = { ...DEFAULT_BASES };
         } else {
             BASES = JSON.parse(saved);
-            // Добавляем новые ключи из кода, если их нет в памяти
             Object.keys(DEFAULT_BASES).forEach(key => {
                 if (!(key in BASES)) BASES[key] = DEFAULT_BASES[key];
             });
@@ -204,23 +191,9 @@
             
             document.getElementById('resDisplay').textContent = res.toFixed(2) + " %";
             document.getElementById('detailsDisplay').textContent = "Формула: " + readyF;
-            return { f: readyF, res: res.toFixed(2) };
         } catch (e) {
             document.getElementById('resDisplay').textContent = "---";
         }
-    }
-
-    function saveToHistory() {
-        const data = calculate();
-        if (!data) return;
-        const history = JSON.parse(localStorage.getItem('calc_history')) || [];
-        const time = new Date().toLocaleString('ru-RU', {hour:'2-digit', minute:'2-digit'});
-        history.unshift(`[${time}] ${data.f} = ${data.res}%`);
-        localStorage.setItem('calc_history', JSON.stringify(history.slice(0, 30)));
-        
-        // Вибрация Telegram
-        tg.HapticFeedback.notificationOccurred('success');
-        alert("Сохранено!");
     }
 
     function resetBases() {
@@ -228,13 +201,6 @@
             localStorage.removeItem('bases');
             location.reload();
         }
-    }
-
-    // Вспомогательные функции (модалки, удаление)
-    function openHistory() {
-        const history = JSON.parse(localStorage.getItem('calc_history')) || [];
-        document.getElementById('historyList').innerHTML = history.map(i => `<div class="history-item">${i}</div>`).join('') || "История пуста";
-        document.getElementById('modalHistory').style.display = 'block';
     }
 
     function openEditor() {
@@ -264,11 +230,6 @@
         openEditor();
     }
 
-    function clearHistory() { 
-        localStorage.removeItem('calc_history'); 
-        openHistory(); 
-    }
-
     function closeModals() { 
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
     }
@@ -277,4 +238,3 @@
 </script>
 </body>
 </html>
-
