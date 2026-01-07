@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>RATIO Telegram</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -68,19 +72,19 @@
 <div class="container">
     <div class="card">
         <div class="field-group">
-            <label>Значение A (1-100):</label>
+            <label>[A] Количество нитей:</label>
             <input type="number" id="valA" value="46" oninput="calculate()">
         </div>
         <div class="field-group">
-            <label>Значение B:</label>
+            <label>[B] Линейная плотность нитей:</label>
             <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()">
         </div>
         <div class="field-group">
-            <label>Значение D:</label>
+            <label>[D] Вес одного метра изделия:</label>
             <input type="number" id="valD" value="145" oninput="calculate()">
         </div>
         <div class="field-group">
-            <label>База (C):</label>
+            <label>[C] Вес обмоточной нити:</label>
             <div class="base-row">
                 <select id="baseSelect" onchange="onBaseChange()"></select>
                 <input type="text" id="valC" readonly>
@@ -98,6 +102,7 @@
     </div>
 
     <button class="btn-main" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
+    <button class="btn-outline" onclick="forceUpdate()" style="border-color: #f39c12; color: #f39c12; margin-top: 20px;">🔄 ПРОВЕРИТЬ ОБНОВЛЕНИЯ</button>
 </div>
 
 <div id="modalEditor" class="modal" onclick="closeModals()">
@@ -118,25 +123,11 @@
     tg.expand();
 
     const DEFAULT_BASES = {
-    "6 ЛЕРУА": 8.64,
-    "8 ЛЕРУА": 10.56,
-    "10 ЛЕРУА": 12.48,
-    "12 ЛЕРУА": 9.36,
-    "8 HARD": 5.76,
-    "10 HARD": 6.72,
-    "8 ГОСТ": 9.96,
-    "10 ГОСТ": 8.16,
-    "6 ST": 7.68,
-    "8 ST": 9.6,
-    "10 ST": 11.52,
-    "12 ST": 12.96,
-    "4 PRO": 3.84,
-    "6 PRO": 8.64,
-    "8 PRO": 10.56,
-    "10 PRO": 12.48,
-    "12 PRO": 12.96,
-    "14 PRO": 10.56,
-    "16 PRO": 10.8
+        "6 ЛЕРУА": 8.64, "8 ЛЕРУА": 10.56, "10 ЛЕРУА": 12.48, "12 ЛЕРУА": 9.36,
+        "8 HARD": 5.76, "10 HARD": 6.72, "8 ГОСТ": 9.96, "10 ГОСТ": 8.16,
+        "6 ST": 7.68, "8 ST": 9.6, "10 ST": 11.52, "12 ST": 12.96,
+        "4 PRO": 3.84, "6 PRO": 8.64, "8 PRO": 10.56, "10 PRO": 12.48,
+        "12 PRO": 12.96, "14 PRO": 10.56, "16 PRO": 10.8
     };
 
     let BASES;
@@ -196,8 +187,16 @@
         }
     }
 
+    function forceUpdate() {
+        if (confirm("Приложение будет перезагружено для загрузки обновлений кода из GitHub. Ваши настройки баз сохранятся. Обновить?")) {
+            const versionBuster = Date.now();
+            const currentUrl = window.location.origin + window.location.pathname;
+            window.location.href = currentUrl + '?v=' + versionBuster;
+        }
+    }
+
     function resetBases() {
-        if(confirm("Вернуть базу из файла?")) {
+        if(confirm("Вернуть базу к заводским настройкам?")) {
             localStorage.removeItem('bases');
             location.reload();
         }
@@ -214,12 +213,14 @@
     }
 
     function deleteBase(name) {
-        delete BASES[name];
-        saveBases();
+        if(confirm(`Удалить ${name}?`)) {
+            delete BASES[name];
+            saveBases();
+        }
     }
 
     function addNewBase() {
-        const n = prompt("Название:");
+        const n = prompt("Название новой базы:");
         const v = parseFloat(prompt("Значение C:"));
         if(n && !isNaN(v)) { BASES[n] = v; saveBases(); }
     }
