@@ -23,6 +23,7 @@
             color: var(--tg-text);
             margin: 0; padding: 15px; 
             overscroll-behavior: none;
+            min-height: 100vh; /* Важно для клика по фону */
         }
         .container { max-width: 500px; margin: 0 auto; }
         .card { 
@@ -59,32 +60,37 @@
         .btn-main { background: var(--tg-theme-button-color, var(--primary)); color: var(--tg-theme-button-text-color, #fff); }
         .btn-sec { background: #666; color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--tg-link); color: var(--tg-link); }
+        
+        /* Кнопка скрытия клавиатуры */
+        .btn-hide-kbd { 
+            background: rgba(0,0,0,0.05); color: var(--tg-hint); 
+            padding: 8px; font-size: 12px; margin-top: -5px; margin-bottom: 15px;
+        }
 
-        /* Модалки */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; }
         .modal-content { background: var(--tg-bg); margin: 10% auto; padding: 20px; width: 85%; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
     </style>
 </head>
-<body>
+<body onclick="hideKeyboard(event)">
 
 <div class="container">
     <div class="card">
         <div class="field-group">
-            <label>[A] Количество нитей:</label>
-            <input type="number" id="valA" value="46" oninput="calculate()">
+            <label>Значение A (1-100):</label>
+            <input type="number" id="valA" value="46" oninput="calculate()" onkeydown="checkEnter(event)">
         </div>
         <div class="field-group">
-            <label>[B] Линейная плотность нитей:</label>
-            <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()">
+            <label>Значение B:</label>
+            <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()" onkeydown="checkEnter(event)">
         </div>
         <div class="field-group">
-            <label>[D] Вес одного метра изделия:</label>
-            <input type="number" id="valD" value="145" oninput="calculate()">
+            <label>Значение D:</label>
+            <input type="number" id="valD" value="145" oninput="calculate()" onkeydown="checkEnter(event)">
         </div>
         <div class="field-group">
-            <label>[C] Вес обмоточной нити:</label>
+            <label>База (C):</label>
             <div class="base-row">
                 <select id="baseSelect" onchange="onBaseChange()"></select>
                 <input type="text" id="valC" readonly>
@@ -94,11 +100,12 @@
 
     <div class="card">
         <label>Формула:</label>
-        <input type="text" id="formula" value="(({A} * {B} + {C}) / {D}) * 100 - 100" oninput="calculate()">
+        <input type="text" id="formula" value="(({A} * {B} + {C}) / {D}) * 100 - 100" oninput="calculate()" onkeydown="checkEnter(event)">
         <div class="result-box">
             <div class="result-val" id="resDisplay">0.00 %</div>
             <div class="formula-text" id="detailsDisplay">Ожидание данных...</div>
         </div>
+        <button class="btn-hide-kbd" onclick="document.activeElement.blur()">⌨ СКРЫТЬ КЛАВИАТУРУ</button>
     </div>
 
     <button class="btn-main" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
@@ -136,6 +143,20 @@
         loadBases();
         renderBaseSelect();
         calculate();
+    }
+
+    // Скрытие клавиатуры при нажатии Enter
+    function checkEnter(e) {
+        if (e.key === "Enter") {
+            document.activeElement.blur();
+        }
+    }
+
+    // Скрытие клавиатуры при клике вне инпутов
+    function hideKeyboard(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+            document.activeElement.blur();
+        }
     }
 
     function loadBases() {
@@ -188,7 +209,7 @@
     }
 
     function forceUpdate() {
-        if (confirm("Приложение будет перезагружено для загрузки обновлений кода из GitHub. Ваши настройки баз сохранятся. Обновить?")) {
+        if (confirm("Обновить код приложения? Настройки баз сохранятся.")) {
             const versionBuster = Date.now();
             const currentUrl = window.location.origin + window.location.pathname;
             window.location.href = currentUrl + '?v=' + versionBuster;
