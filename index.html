@@ -1,241 +1,471 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <title>RATIO Telegram</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --tg-bg: var(--tg-theme-bg-color, #f4f4f9);
-            --tg-text: var(--tg-theme-text-color, #333);
-            --tg-hint: var(--tg-theme-hint-color, #999);
-            --tg-link: var(--tg-theme-link-color, #248bfe);
-            --primary: #1a7f37;
-        }
-        body { 
-            font-family: -apple-system, system-ui, Roboto, sans-serif; 
-            background: var(--tg-bg); 
-            color: var(--tg-text);
-            margin: 0; padding: 15px; 
-            overscroll-behavior: none;
-        }
-        .container { max-width: 500px; margin: 0 auto; }
-        .card { 
-            background: var(--tg-theme-secondary-bg-color, #fff); 
-            padding: 20px; border-radius: 12px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-        .field-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85em; margin-bottom: 5px; color: var(--tg-hint); }
-        input, select { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
-            box-sizing: border-box; font-size: 16px; 
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-text);
-        }
-        .base-row { display: flex; gap: 10px; }
-        .base-row select { flex: 2; }
-        .base-row input { flex: 1; background: var(--tg-theme-secondary-bg-color, #eee); }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Соотношение</title>
 
-        .result-box { 
-            text-align: center; background: rgba(26, 127, 55, 0.1); 
-            padding: 15px; border-radius: 10px; margin: 15px 0;
-            border: 1px solid var(--primary);
-        }
-        .result-val { font-size: 32px; font-weight: bold; color: var(--primary); }
-        .formula-text { font-size: 11px; color: var(--tg-hint); margin-top: 5px; }
+<style>
+    *{
+        box-sizing:border-box;
+    }
 
-        button { 
-            width: 100%; padding: 14px; border: none; border-radius: 10px; 
-            font-weight: bold; cursor: pointer; margin-bottom: 10px; 
-            font-size: 14px; transition: 0.2s;
-        }
-        .btn-main { background: var(--tg-theme-button-color, var(--primary)); color: var(--tg-theme-button-text-color, #fff); }
-        .btn-sec { background: #666; color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--tg-link); color: var(--tg-link); }
+    body{
+        margin:0;
+        padding:20px;
+        background:#f4f6f9;
+        font-family:Segoe UI, sans-serif;
+        color:#222;
+    }
 
-        /* Модалки */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; }
-        .modal-content { background: var(--tg-bg); margin: 10% auto; padding: 20px; width: 85%; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
-    </style>
+    .container{
+        max-width:520px;
+        margin:auto;
+    }
+
+    .card{
+        background:white;
+        border-radius:14px;
+        padding:20px;
+        margin-bottom:16px;
+        box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    h1{
+        margin-top:0;
+        font-size:28px;
+        text-align:center;
+    }
+
+    h2{
+        margin-top:0;
+        font-size:18px;
+    }
+
+    .row{
+        margin-bottom:14px;
+    }
+
+    label{
+        display:block;
+        margin-bottom:6px;
+        font-size:14px;
+        font-weight:600;
+    }
+
+    input,
+    select,
+    textarea,
+    button{
+        width:100%;
+        padding:10px 12px;
+        border-radius:10px;
+        border:1px solid #cfcfcf;
+        font-size:15px;
+    }
+
+    textarea{
+        resize:vertical;
+        min-height:70px;
+        font-family:Consolas, monospace;
+    }
+
+    button{
+        background:#1a7f37;
+        color:white;
+        border:none;
+        cursor:pointer;
+        font-weight:600;
+        transition:0.2s;
+    }
+
+    button:hover{
+        background:#14662c;
+    }
+
+    .result{
+        text-align:center;
+        font-size:36px;
+        font-weight:bold;
+        color:#1a7f37;
+        margin-top:10px;
+    }
+
+    .details{
+        text-align:center;
+        color:#666;
+        font-size:13px;
+        margin-top:10px;
+        word-break:break-word;
+    }
+
+    .base-controls{
+        display:flex;
+        gap:10px;
+    }
+
+    .base-controls select{
+        flex:1;
+    }
+
+    .editor{
+        display:grid;
+        gap:10px;
+    }
+
+    .base-list{
+        max-height:220px;
+        overflow:auto;
+        border:1px solid #ddd;
+        border-radius:10px;
+        padding:8px;
+    }
+
+    .base-item{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:8px;
+        border-bottom:1px solid #eee;
+    }
+
+    .base-item:last-child{
+        border-bottom:none;
+    }
+
+    .mini-buttons{
+        display:flex;
+        gap:5px;
+    }
+
+    .mini-buttons button{
+        width:auto;
+        padding:6px 10px;
+        font-size:12px;
+    }
+
+    .danger{
+        background:#c62828;
+    }
+
+    .danger:hover{
+        background:#9f1f1f;
+    }
+</style>
 </head>
+
 <body>
 
 <div class="container">
+
     <div class="card">
-        <div class="field-group">
-            <label>[A] Количество нитей:</label>
-            <input type="number" id="valA" value="46" oninput="calculate()">
+        <h1>Соотношение</h1>
+
+        <div class="row">
+            <label>Значение A (1-100)</label>
+            <select id="valueA"></select>
         </div>
-        <div class="field-group">
-            <label>[B] Линейная плотность нитей:</label>
-            <input type="number" id="valB" value="2.4" step="0.1" oninput="calculate()">
+
+        <div class="row">
+            <label>Значение B</label>
+            <input type="number" id="valueB" step="0.01" value="2.4">
         </div>
-        <div class="field-group">
-            <label>[D] Вес одного метра изделия:</label>
-            <input type="number" id="valD" value="145" oninput="calculate()">
+
+        <div class="row">
+            <label>Значение D</label>
+            <input type="number" id="valueD" step="0.01" value="145">
         </div>
-        <div class="field-group">
-            <label>[C] Вес обмоточной нити:</label>
-            <div class="base-row">
-                <select id="baseSelect" onchange="onBaseChange()"></select>
-                <input type="text" id="valC" readonly>
+
+        <div class="row">
+            <label>Выбор базы (C)</label>
+
+            <div class="base-controls">
+                <select id="baseSelect"></select>
+                <input type="text" id="valueC" readonly>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <label>Формула:</label>
-        <input type="text" id="formula" value="(({A} * {B} + {C}) / {D}) * 100 - 100" oninput="calculate()">
-        <div class="result-box">
-            <div class="result-val" id="resDisplay">0.00 %</div>
-            <div class="formula-text" id="detailsDisplay">Ожидание данных...</div>
+        <div class="row">
+            <button onclick="toggleEditor()">⚙ РЕДАКТОР БАЗЫ</button>
         </div>
     </div>
 
-    <button class="btn-main" onclick="openEditor()">⚙ РЕДАКТОР БАЗЫ</button>
-    <button class="btn-outline" onclick="forceUpdate()" style="border-color: #f39c12; color: #f39c12; margin-top: 20px;">🔄 ПРОВЕРИТЬ ОБНОВЛЕНИЯ</button>
-</div>
+    <div class="card">
+        <h2>Формула</h2>
 
-<div id="modalEditor" class="modal" onclick="closeModals()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3>Редактор базы</h3>
-        <table id="baseTable">
-            <thead><tr><th>Имя</th><th>C</th><th></th></tr></thead>
-            <tbody id="baseTableBody"></tbody>
-        </table>
-        <button class="btn-main" onclick="addNewBase()" style="margin-top:10px;">+ Добавить</button>
-        <button class="btn-sec" onclick="resetBases()" style="background:#f39c12;">🔄 Сброс к заводским</button>
-        <button class="btn-outline" onclick="closeModals()">Закрыть</button>
+        <textarea id="formula">
+(({A} * {B} + {C}) / {D}) * 100 - 100
+        </textarea>
     </div>
+
+    <div class="card">
+        <div class="details" id="details">
+            Введите данные...
+        </div>
+
+        <div class="result" id="result">
+            0.00 %
+        </div>
+    </div>
+
+    <div class="card" id="editorBlock" style="display:none;">
+        <h2>Редактор справочника C</h2>
+
+        <div class="editor">
+
+            <input type="text" id="newBaseName" placeholder="Название">
+            <input type="number" id="newBaseValue" placeholder="Значение">
+
+            <button onclick="addBase()">Добавить</button>
+
+            <div class="base-list" id="baseList"></div>
+
+        </div>
+    </div>
+
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
 
-    const DEFAULT_BASES = {
-        "6 ЛЕРУА": 8.64, "8 ЛЕРУА": 10.56, "10 ЛЕРУА": 12.48, "12 ЛЕРУА": 9.36,
-        "8 HARD": 5.76, "10 HARD": 6.72, "8 ГОСТ": 9.96, "10 ГОСТ": 8.16,
-        "6 ST": 7.68, "8 ST": 9.6, "10 ST": 11.52, "12 ST": 12.96,
-        "4 PRO": 3.84, "6 PRO": 8.64, "8 PRO": 10.56, "10 PRO": 12.48,
-        "12 PRO": 12.96, "14 PRO": 10.56, "16 PRO": 10.8
-    };
+const DEFAULT_BASES = {
+    "6 ЛЕРУА": 8.64,
+    "8 ЛЕРУА": 10.56,
+    "10 ЛЕРУА": 12.48,
+    "12 ЛЕРУА": 9.36,
+    "8 HARD": 5.76,
+    "10 HARD": 6.72,
+    "8 ГОСТ": 9.96,
+    "10 ГОСТ": 8.16,
+    "6 ST": 7.68,
+    "8 ST": 9.6,
+    "10 ST": 11.52,
+    "12 ST": 12.96,
+    "4 PRO": 3.84,
+    "6 PRO": 8.64,
+    "8 PRO": 10.56,
+    "10 PRO": 12.48,
+    "12 PRO": 12.96,
+    "14 PRO": 10.56,
+    "16 PRO": 10.8
+};
 
-    let BASES;
+let BASES = JSON.parse(localStorage.getItem("calcapp_bases")) || DEFAULT_BASES;
 
-    function init() {
-        loadBases();
-        renderBaseSelect();
-        calculate();
+const valueA = document.getElementById("valueA");
+const valueB = document.getElementById("valueB");
+const valueC = document.getElementById("valueC");
+const valueD = document.getElementById("valueD");
+
+const formula = document.getElementById("formula");
+const result = document.getElementById("result");
+const details = document.getElementById("details");
+
+const baseSelect = document.getElementById("baseSelect");
+const baseList = document.getElementById("baseList");
+
+function initA(){
+    for(let i=1;i<=100;i++){
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        valueA.appendChild(option);
     }
 
-    function loadBases() {
-        let saved = localStorage.getItem('bases');
-        if (!saved) {
-            BASES = { ...DEFAULT_BASES };
-        } else {
-            BASES = JSON.parse(saved);
-            Object.keys(DEFAULT_BASES).forEach(key => {
-                if (!(key in BASES)) BASES[key] = DEFAULT_BASES[key];
-            });
-        }
+    valueA.value = 46;
+}
+
+function saveBases(){
+    localStorage.setItem("calcapp_bases", JSON.stringify(BASES));
+}
+
+function renderBases(){
+
+    baseSelect.innerHTML = "";
+
+    Object.keys(BASES).forEach(key => {
+
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = key;
+
+        baseSelect.appendChild(option);
+
+    });
+
+    renderBaseList();
+
+    if(baseSelect.value === ""){
+        baseSelect.selectedIndex = 0;
     }
 
-    function renderBaseSelect() {
-        const sel = document.getElementById('baseSelect');
-        const lastVal = sel.value;
-        sel.innerHTML = '';
-        Object.keys(BASES).forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name; opt.textContent = name;
-            sel.appendChild(opt);
+    updateC();
+}
+
+function renderBaseList(){
+
+    baseList.innerHTML = "";
+
+    Object.entries(BASES).forEach(([name,val]) => {
+
+        const div = document.createElement("div");
+        div.className = "base-item";
+
+        div.innerHTML = `
+            <div>
+                <strong>${name}</strong><br>
+                <small>${val}</small>
+            </div>
+
+            <div class="mini-buttons">
+                <button onclick="editBase('${name}')">Изм.</button>
+                <button class="danger" onclick="deleteBase('${name}')">Удалить</button>
+            </div>
+        `;
+
+        baseList.appendChild(div);
+
+    });
+
+}
+
+function updateC(){
+
+    const selected = baseSelect.value;
+
+    if(BASES[selected] !== undefined){
+        valueC.value = BASES[selected];
+    } else {
+        valueC.value = "";
+    }
+
+    calculate();
+}
+
+function calculate(){
+
+    try{
+
+        let expr = formula.value;
+
+        const values = {
+            A: valueA.value || 0,
+            B: valueB.value || 0,
+            C: valueC.value || 0,
+            D: valueD.value || 1
+        };
+
+        Object.entries(values).forEach(([k,v])=>{
+            expr = expr.replaceAll(`{${k}}`, v);
         });
-        if (lastVal && BASES[lastVal]) sel.value = lastVal;
-        onBaseChange();
-    }
 
-    function onBaseChange() {
-        const name = document.getElementById('baseSelect').value;
-        document.getElementById('valC').value = BASES[name] || 0;
-        calculate();
-    }
+        const clean = expr.replace(/\s/g,'');
 
-    function calculate() {
-        try {
-            const a = document.getElementById('valA').value || "0";
-            const b = document.getElementById('valB').value || "0";
-            const c = document.getElementById('valC').value || "0";
-            const d = document.getElementById('valD').value || "1";
-            let f = document.getElementById('formula').value;
-
-            let readyF = f.replace(/{A}/g, a).replace(/{B}/g, b).replace(/{C}/g, c).replace(/{D}/g, d);
-            const res = eval(readyF.replace(/[^-()\d/*+.]/g, ''));
-            
-            document.getElementById('resDisplay').textContent = res.toFixed(2) + " %";
-            document.getElementById('detailsDisplay').textContent = "Формула: " + readyF;
-        } catch (e) {
-            document.getElementById('resDisplay').textContent = "---";
+        if(!/^[0-9.+\-*/()]+$/.test(clean)){
+            result.textContent = "Ошибка";
+            return;
         }
+
+        const calc = Function(`return ${clean}`)();
+
+        result.textContent = calc.toFixed(2) + " %";
+        details.textContent = "Формула: " + expr;
+
+    } catch(e){
+
+        result.textContent = "---";
+
     }
 
-    function forceUpdate() {
-        if (confirm("Приложение будет перезагружено для загрузки обновлений кода из GitHub. Ваши настройки баз сохранятся. Обновить?")) {
-            const versionBuster = Date.now();
-            const currentUrl = window.location.origin + window.location.pathname;
-            window.location.href = currentUrl + '?v=' + versionBuster;
-        }
+}
+
+function addBase(){
+
+    const name = document.getElementById("newBaseName").value.trim();
+    const val = parseFloat(document.getElementById("newBaseValue").value);
+
+    if(!name){
+        alert("Введите название");
+        return;
     }
 
-    function resetBases() {
-        if(confirm("Вернуть базу к заводским настройкам?")) {
-            localStorage.removeItem('bases');
-            location.reload();
-        }
+    if(isNaN(val)){
+        alert("Введите значение");
+        return;
     }
 
-    function openEditor() {
-        const body = document.getElementById('baseTableBody');
-        body.innerHTML = '';
-        Object.entries(BASES).forEach(([name, val]) => {
-            const row = `<tr><td>${name}</td><td>${val}</td><td><button onclick="deleteBase('${name}')" style="background:#d33; padding:5px; margin:0; width:auto;">X</button></td></tr>`;
-            body.insertAdjacentHTML('beforeend', row);
-        });
-        document.getElementById('modalEditor').style.display = 'block';
+    if(BASES[name]){
+        alert("Такое имя уже существует");
+        return;
     }
 
-    function deleteBase(name) {
-        if(confirm(`Удалить ${name}?`)) {
-            delete BASES[name];
-            saveBases();
-        }
+    BASES[name] = val;
+
+    saveBases();
+    renderBases();
+
+    document.getElementById("newBaseName").value = "";
+    document.getElementById("newBaseValue").value = "";
+
+}
+
+function editBase(name){
+
+    const val = prompt("Новое значение:", BASES[name]);
+
+    if(val === null) return;
+
+    const num = parseFloat(val);
+
+    if(isNaN(num)){
+        alert("Неверное число");
+        return;
     }
 
-    function addNewBase() {
-        const n = prompt("Название новой базы:");
-        const v = parseFloat(prompt("Значение C:"));
-        if(n && !isNaN(v)) { BASES[n] = v; saveBases(); }
+    BASES[name] = num;
+
+    saveBases();
+    renderBases();
+
+}
+
+function deleteBase(name){
+
+    if(!confirm(`Удалить '${name}' ?`)){
+        return;
     }
 
-    function saveBases() {
-        localStorage.setItem('bases', JSON.stringify(BASES));
-        renderBaseSelect();
-        openEditor();
+    delete BASES[name];
+
+    saveBases();
+    renderBases();
+
+}
+
+function toggleEditor(){
+
+    const block = document.getElementById("editorBlock");
+
+    if(block.style.display === "none"){
+        block.style.display = "block";
+    } else {
+        block.style.display = "none";
     }
 
-    function closeModals() { 
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
-    }
+}
 
-    init();
+valueA.addEventListener("input", calculate);
+valueB.addEventListener("input", calculate);
+valueD.addEventListener("input", calculate);
+formula.addEventListener("input", calculate);
+baseSelect.addEventListener("change", updateC);
+
+initA();
+renderBases();
+calculate();
+
 </script>
+
 </body>
 </html>
+```
